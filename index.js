@@ -14,7 +14,7 @@ app.use(cors());
 const port = process.env.PORT || 5001;
 
 app.get("/", (req, res) => {
-  return res.status(200).send("Welcome To Back-End");
+  return res.status(200).send("Welcome To The Back-End");
 });
 
 app.use(express.static("public"));
