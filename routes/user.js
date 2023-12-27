@@ -2,7 +2,33 @@ const express = require("express");
 const router = express.Router();
 const { body } = require("express-validator");
 const validateToken = require("../middleWare/validateToken.js");
-const { testUserAPI, GoogleSignIn, CreateToken, CreateUser, UpdateToken, varifyEmail, UnApproveUser, ResetPasword, VarifyUser, LogInUser, GoogleLogIn, UpdateUser, DeleteUser, GetNewUsers, GetUserById, GetUsers, GetCurrentUser, ApproveUser } = require("../controllers/user");
+const {
+  testUserAPI,
+  GoogleSignUp,
+  CreateToken,
+  FacebookLogin,
+  FacebookSignUp,
+  CreateUser,
+  UpdateToken,
+  varifyEmail,
+  UnApproveUser,
+  ResetPasword,
+  VarifyUser,
+  LogInUser,
+  GoogleLogIn,
+  UpdateUser,
+  DeleteUser,
+  GetNewUsers,
+  GetUserById,
+  GetUsers,
+  GetCurrentUser,
+  ApproveUser,
+} = require("../controllers/user");
+
+//@desc Facebook Sign Up API
+//@route POST /api/v1/user/facebooksignup
+//@access Public
+router.post("/facebooksignup", [body("name"), body("facebookId", "facebookId required")], FacebookSignUp);
 
 //@desc Create Token  API
 //@route GET /api/v1/user/createtoken/:id
@@ -22,7 +48,7 @@ router.post("/updatetoken/:id", [body("token", "Token for email not found").notE
 //@desc Google Sign In API
 //@route POST /api/v1/user/googlesignin
 //@access Public
-router.post("/googlesignin", [body("name", "Enter a valid name").isLength({ min: 3 }), body("email", "Enter a Valid Email").isEmail(), body("googleId")], GoogleSignIn);
+router.post("/googlesignup", [body("name"), body("email", "Email is not valid").isEmail(), body("googleId", "GoogleId required")], GoogleSignUp);
 
 //@desc Test User API
 //@route GET /api/v1/user
@@ -51,6 +77,11 @@ router.post("/varifyuser", [body("email", "Enter Valid Email").isEmail()], Varif
 //@route GET /api/v1/user/googlelogin
 //@access Public
 router.post("/googlelogin", [body("email", "Enter Valid Email").isEmail()], GoogleLogIn);
+
+//@desc Facebook LogIn API
+//@route GET /api/v1/user/facebooklogin
+//@access Public
+router.post("/facebooklogin", [body("facebookId", "FacebookId required")], FacebookLogin);
 
 //@desc Create User API
 //@route POST /api/v1/user/add

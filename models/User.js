@@ -9,14 +9,15 @@ const UserSchema = new Schema({
   googleId: {
     type: String,
   },
+  facebookId: {
+    type: String,
+  },
   name: {
     type: String,
     required: true,
   },
   email: {
     type: String,
-    required: true,
-    unique: true,
   },
   email_verified: {
     type: Boolean,

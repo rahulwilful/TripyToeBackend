@@ -25,9 +25,13 @@ const CreateUser = async (req, res) => {
     return res.status(401).json({ message: "mobile no required" });
   }
 
-  if (!data.mobile_no) {
+  if (!data.password) {
     logger.error(`${ip}: API /api/v1/user/add  responnded with "password required" `);
-    return res.status(401).json({ message: "password required" });
+    return res.status(403).json({ message: "password required" });
+  }
+  if (!data.email) {
+    logger.error(`${ip}: API /api/v1/user/add  responnded with "email required" `);
+    return res.status(402).json({ message: "email required" });
   }
   const oldUser = await User.findOne({ email: data.email });
 
@@ -42,7 +46,9 @@ const CreateUser = async (req, res) => {
   console.log("Token: ", token);
   await User.create({
     profile: "",
+    facebookId: "",
     googleId: "",
+    facebookId: "",
     name: data.name,
     email: data.email,
     mobile_no: data.mobile_no,
@@ -67,7 +73,7 @@ const CreateUser = async (req, res) => {
 //@desc Google Sign In API
 //@route POST /api/v1/user/googlesignin
 //@access Public
-const GoogleSignIn = async (req, res) => {
+const GoogleSignUp = async (req, res) => {
   const errors = validationResult(req); //checking for validations
   const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress; //wats remote address?
 
@@ -84,11 +90,11 @@ const GoogleSignIn = async (req, res) => {
     logger.error(`${ip}: API /api/v1/user/add  responnded with User already registered! for email: ${data.email} `);
     return res.status(400).json({ message: "User already registered!" });
   }
-  const token = GenerateToken();
 
   await User.create({
     profile: "",
     googleId: data.googleId,
+    facebookId: "",
     name: data.name,
     email: data.email,
     mobile_no: "",
@@ -99,7 +105,7 @@ const GoogleSignIn = async (req, res) => {
     instagram: "",
     facebook: "",
     otp: "",
-    token: token,
+    token: "",
   })
     .then((user) => {
       logger.info(`${ip}: API /api/v1/user/add  responnded with Success `);
@@ -107,6 +113,53 @@ const GoogleSignIn = async (req, res) => {
     })
     .catch((err) => {
       logger.error(`${ip}: API /api/v1/user/add  responnded with Error `);
+      return res.status(500).json({ message: err.message });
+    });
+};
+
+//@desc Facbook Sign Up API
+//@route POST /api/v1/user/facebooksignup
+//@access Public
+const FacebookSignUp = async (req, res) => {
+  const errors = validationResult(req); //checking for validations
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress; //wats remote address?
+
+  //if error return
+  if (!errors.isEmpty()) {
+    logger.error(`${ip}: API /api/v1/user/facebooksignup  responded with Error`);
+    return res.status(401).json({ errors: errors.array() });
+  }
+  const data = matchedData(req);
+  console.log("1", data.facebookId);
+  const oldUser = await User.findOne({ facebookId: data.facebookId });
+
+  if (oldUser) {
+    logger.error(`${ip}: API /api/v1/user/facebooksignup  responnded with User already registered! `);
+    return res.status(400).json({ message: "User already registered!" });
+  }
+  console.log("2", data.facebookId);
+  await User.create({
+    profile: "",
+    googleId: "",
+    facebookId: data.facebookId,
+    name: data.name,
+    email: "",
+    mobile_no: "",
+    email_verified: false,
+    password: "",
+    whatsapp_status: false,
+    whatsapp_no: "",
+    instagram: "",
+    facebook: "",
+    otp: "",
+    token: "",
+  })
+    .then((user) => {
+      logger.info(`${ip}: API /api/v1/user/facebooksignup  responnded with Success `);
+      return res.status(201).json({ result: user });
+    })
+    .catch((err) => {
+      logger.error(`${ip}: API /api/v1/user/facebooksignup  responnded with Error `);
       return res.status(500).json({ message: err.message });
     });
 };
@@ -401,6 +454,47 @@ const GoogleLogIn = async (req, res) => {
   }
 };
 
+//@desc FacebookLogin LogIn API
+//@route POST /api/v1/user/facebooklogin
+//@access Public
+const FacebookLogin = async (req, res) => {
+  const errors = validationResult(req); //checking for validations
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress; //wats remote address?
+
+  //if error return
+  if (!errors.isEmpty()) {
+    logger.error(`${ip}: API /api/v1/user/facebooklogin  responnded with Error `);
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  const data = matchedData(req);
+  const facebookId = data.facebookId;
+  console.log(facebookId);
+
+  try {
+    const oldUser = await User.findOne({ facebookId: facebookId });
+
+    if (!oldUser) {
+      logger.error(`${ip}: API /api/v1/user/facebooklogin  responded User does not 
+      exist  `);
+      return res.status(404).json({ error: "User Does Not Exist" });
+    }
+
+    if (!oldUser.approved) {
+      logger.error(`${ip}: API /api/v1/user/facebooklogin  responded User approval is pending  `);
+      return res.status(400).json({ error: "User approval is still pending" });
+    }
+
+    const token = jwt.sign({ user: oldUser }, secret, { expiresIn: "48h" });
+
+    logger.info(`${ip}: API /api/v1/user/facebooklogin | Login Successfull" `);
+    return res.status(200).json({ result: oldUser, token });
+  } catch (e) {
+    logger.error(`${ip}: API /api/v1/user/facebooklogin  responnded with Error `);
+    return res.status(500).json(e, " Something went wrong");
+  }
+};
+
 //@desc Varify User API
 //@route POST /api/v1/user/varifyuser
 //@access Public
@@ -602,8 +696,10 @@ module.exports = {
   GoogleLogIn,
   VarifyUser,
   ResetPasword,
-  GoogleSignIn,
+  GoogleSignUp,
   UpdateToken,
   varifyEmail,
   CreateToken,
+  FacebookSignUp,
+  FacebookLogin,
 };
