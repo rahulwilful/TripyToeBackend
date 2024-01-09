@@ -681,7 +681,168 @@ const CreateToken = async (req, res) => {
   }
 };
 
+//@desc Searched API
+//@route POST /api/v1/user/searched/:id
+//@access Public
+const Searched = async (req, res) => {
+  const errors = validationResult(req); // checking for validations
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+  const id = req.params.id;
+  const data = matchedData(req);
+
+  if (!errors.isEmpty()) {
+    logger.error(`${ip}: API /api/v1/user/searched/:id responded with Error`);
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  console.log("data", data);
+  try {
+    const user = await User.findOneAndUpdate(
+      {
+        _id: id,
+      },
+      {
+        $push: {
+          searched: {
+            destination: data.destination,
+            no_of_days: data.no_of_days,
+            start_date: data.start_date,
+            no_of_ppl: data.no_of_ppl,
+            preference: data.preference,
+            budget: data.budget,
+          },
+        },
+      },
+      { new: true } // This option returns the modified document instead of the original
+    );
+
+    logger.info(`${ip}: API /api/v1/user/searched/:id responded with "search saved"`);
+    return res.status(201).json({ result: user });
+  } catch (e) {
+    logger.error(`${ip}: API /api/v1/user/searched/:id responded with Error - ${e.message}`);
+    return res.status(500).json({ error: "Something went wrong while saving search" });
+  }
+};
+
+//@desc Itinerays API
+//@route POST /api/v1/user/itinerays/:id
+//@access Public
+const Itinerays = async (req, res) => {
+  const errors = validationResult(req); // checking for validations
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+  const id = req.params.id;
+  const data = matchedData(req);
+  console.log("data", data);
+
+  if (!errors.isEmpty()) {
+    logger.error(`${ip}: API /api/v1/user/itinerays/:id responded with Error`);
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  console.log("data", data);
+  try {
+    const user = await User.findOneAndUpdate(
+      {
+        _id: id,
+      },
+      {
+        $push: {
+          itinerarys: {
+            destination: data.destination,
+            no_of_days: data.no_of_days,
+            start_date: data.start_date,
+            no_of_ppl: data.no_of_ppl,
+            preference: data.preference,
+            budget: data.budget,
+            plan: data.plan,
+          },
+        },
+      },
+      { new: true } // This option returns the modified document instead of the original
+    );
+
+    logger.info(`${ip}: API /api/v1/user/itinerays/:id responded with "itineray saved"`);
+    return res.status(201).json({ result: user });
+  } catch (e) {
+    logger.error(`${ip}: API /api/v1/user/itinerays/:id responded with Error - ${e.message}`);
+    return res.status(500).json({ error: "Something went wrong while saving itineray" });
+  }
+};
+
+//@desc Get GetItinerarys API
+//@route POST /api/v1/user/getitinerays/:id
+//@access Public
+const GetItinerarys = async (req, res) => {
+  const errors = validationResult(req); // checking for validations
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+  const id = req.params.id;
+  const data = matchedData(req);
+  console.log("data", data);
+
+  if (!errors.isEmpty()) {
+    logger.error(`${ip}: API /api/v1/user/getitinerays/:id responded with Error`);
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  console.log("data", data);
+  try {
+    const user = await User.findOne({
+      _id: id,
+    });
+
+    if (!user) {
+      logger.error(`${ip}: API /api/v1/user/getitinerays/:id responded with "user not found"`);
+      return res.status(404).json({ error: "User does not exist" });
+    }
+
+    logger.info(`${ip}: API /api/v1/user/getitinerays/:id responded with "itinerays"`);
+    return res.status(201).json({ result: user.itinerarys });
+  } catch (e) {
+    logger.error(`${ip}: API /api/v1/user/getitinerays/:id responded with Error - ${e.message}`);
+    return res.status(500).json({ error: "Something went wrong while geting itinerays" });
+  }
+};
+
+//@desc Get GetItinerarys API
+//@route POST /api/v1/user/getitinerays/:id
+//@access Public
+const GetItineraryById = async (req, res) => {
+  const errors = validationResult(req); // checking for validations
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+  const id = req.params.id;
+  const itineraryid = req.params.itineraryid;
+
+  if (!errors.isEmpty()) {
+    logger.error(`${ip}: API /api/v1/user/getitinerarybyid/:id/:itineraryid responded with Error`);
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  console.log("id: ", id, " itineraryid: ", itineraryid);
+  try {
+    const user = await User.findOne({ _id: id }, { itinerarys: { $elemMatch: { _id: itineraryid } } });
+
+    if (!user) {
+      logger.error(`${ip}: API /api/v1/user/getitinerarybyid/:id/:itineraryid responded with "user not found"`);
+      return res.status(404).json({ error: "User does not exist" });
+    }
+
+    logger.info(`${ip}: API /api/v1/user/getitinerarybyid/:id/:itineraryid responded with "itineray by id"`);
+    return res.status(201).json({ result: user });
+  } catch (e) {
+    logger.error(`${ip}: API /api/v1/user/getitinerarybyid/:id/:itineraryid responded with Error - ${e.message}`);
+    return res.status(500).json({ error: "Something went wrong while geting itineray by id" });
+  }
+};
+
 module.exports = {
+  GetItineraryById,
+  GetItinerarys,
+  Itinerays,
+  Searched,
   testUserAPI,
   CreateUser,
   LogInUser,

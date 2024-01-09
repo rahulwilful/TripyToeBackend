@@ -23,7 +23,43 @@ const {
   GetUsers,
   GetCurrentUser,
   ApproveUser,
+  Searched,
+  Itinerays,
+  GetItinerarys,
+  GetItineraryById,
 } = require("../controllers/user");
+
+//@desc Get Itinerays API
+//@route POST /api/v1/user/getitinerarybyid/:id/:itineraryid
+//@access Public
+router.get("/getitinerarybyid/:id/:itineraryid", GetItineraryById);
+
+//@desc Get Itinerays API
+//@route POST /api/v1/user/getitinerays/id
+//@access Public
+router.get("/getitinerarys/:id", GetItinerarys);
+
+//@desc Itinerays API
+//@route POST /api/v1/user/itinerays/id
+//@access Public
+router.post(
+  "/itinerays/:id",
+  [
+    body("destination", "destination required").notEmpty(),
+    body("no_of_days", "no_of_days required").notEmpty().isNumeric(),
+    body("start_date", "start_date required").notEmpty(),
+    body("no_of_ppl", "no_of_ppl required").notEmpty().isNumeric(),
+    body("preference", "preference required").notEmpty(),
+    body("budget", "budget required").notEmpty().isNumeric(),
+    body("plan", "no_of_days required").notEmpty(),
+  ],
+  Itinerays
+);
+
+//@desc Searched API
+//@route POST /api/v1/user/searched/id
+//@access Public
+router.post("/searched/:id", [body("destination", "destination required"), body("no_of_days", "no_of_days required"), body("start_date", "start_date required"), body("no_of_ppl", "no_of_ppl required"), body("preference", "preference required"), body("budget", "budget required")], Searched);
 
 //@desc Facebook Sign Up API
 //@route POST /api/v1/user/facebooksignup
