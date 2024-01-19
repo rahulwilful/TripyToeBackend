@@ -430,10 +430,9 @@ const GoogleLogIn = async (req, res) => {
 
   const googleId = req.body.googleId;
   const email = req.body.email;
-  console.log(googleId);
 
   try {
-    const oldUser = await User.findOne({ googleId });
+    const oldUser = await User.findOne({ googleId: googleId });
     if (!oldUser) {
       logger.error(`${ip}: API /api/v1/user/googlelogin  responded User does not exist with email:  ${email} `); /* Ive given email coz giving googleId might be risky*/
       return res.status(404).json({ error: "User Does Not Exist" });
