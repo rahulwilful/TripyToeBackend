@@ -112,7 +112,7 @@ router.post("/varifyuser", [body("email", "Enter Valid Email").isEmail()], Varif
 //@desc Google LogIn API
 //@route GET /api/v1/user/googlelogin
 //@access Public
-router.post("/googlelogin", [body("email", "Enter Valid Email").isEmail()], GoogleLogIn);
+router.post("/googlelogin", [body("googleId", "googleId Not Found")], GoogleLogIn);
 
 //@desc Facebook LogIn API
 //@route GET /api/v1/user/facebooklogin
@@ -125,7 +125,7 @@ router.post("/facebooklogin", [body("facebookId", "FacebookId required")], Faceb
 router.post(
   "/add",
   [
-    body("name", "Enter a valid name").isLength({ min: 3 }),
+    body("name", "Enter a valid Name").isLength({ min: 3 }),
     body("email", "Enter a Valid Email").isEmail(),
     body("mobile_no", "Enter a Valid Whatsapp Number").isNumeric(),
     body("password", "Password must have atlest 5 character").isLength({

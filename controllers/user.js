@@ -424,23 +424,23 @@ const GoogleLogIn = async (req, res) => {
 
   //if error return
   if (!errors.isEmpty()) {
-    logger.error(`${ip}: API /api/v1/user/login  responnded with Error `);
+    logger.error(`${ip}: API /api/v1/user/googlelogin  responnded with Error `);
     return res.status(400).json({ errors: errors.array() });
   }
 
+  const googleId = req.body.googleId;
   const email = req.body.email;
-  console.log(email);
+  console.log(googleId);
 
   try {
-    const oldUser = await User.findOne({ email });
+    const oldUser = await User.findOne({ googleId });
     if (!oldUser) {
-      logger.error(`${ip}: API /api/v1/user/login  responded User does not 
-      exist with email:  ${email} `);
+      logger.error(`${ip}: API /api/v1/user/googlelogin  responded User does not exist with email:  ${email} `); /* Ive given email coz giving googleId might be risky*/
       return res.status(404).json({ error: "User Does Not Exist" });
     }
 
     if (!oldUser.approved) {
-      logger.error(`${ip}: API /api/v1/user/login  responded User approval is pending for email:  ${email} `);
+      logger.error(`${ip}: API /api/v1/user/googlelogin  responded User approval is pending for email:  ${email} `);
       return res.status(400).json({ error: "User approval is still pending" });
     }
 
