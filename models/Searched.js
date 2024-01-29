@@ -14,13 +14,13 @@ const SearchedSchema = new Schema({
     type: Date,
   },
   no_of_ppl: {
-    type: Number,
+    type: String,
   },
   preference: {
     type: String,
   },
   budget: {
-    type: Number,
+    type: String,
   },
   userId: {
     type: "ObjectId",
