@@ -24,7 +24,7 @@ const {
   GetCurrentUser,
   ApproveUser,
   Searched,
-  Itinerays,
+  saveItinerarys,
   GetItinerarys,
   GetItineraryById,
 } = require("../controllers/user");
@@ -44,16 +44,16 @@ router.get("/getitinerarys/:id", GetItinerarys);
 //@access Public
 router.post(
   "/itinerays/:id",
-  [
+  /*  [
     body("destination", "destination required").notEmpty(),
     body("no_of_days", "no_of_days required").notEmpty().isNumeric(),
     body("start_date", "start_date required").notEmpty(),
     body("no_of_ppl", "no_of_ppl required").notEmpty().isNumeric(),
     body("preference", "preference required").notEmpty(),
     body("budget", "budget required").notEmpty().isNumeric(),
-    body("plan", "no_of_days required").notEmpty(),
-  ],
-  Itinerays
+    body("itineraryDays", "Itinerary required").notEmpty(),
+  ], */
+  saveItinerarys
 );
 
 //@desc Searched API

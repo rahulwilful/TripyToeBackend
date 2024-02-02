@@ -724,15 +724,16 @@ const Searched = async (req, res) => {
   }
 };
 
-//@desc Itinerays API
-//@route POST /api/v1/user/itinerays/:id
+//@desc saveItinerarys API
+//@route POST /api/v1/user/itinerarys/:id
 //@access Public
-const Itinerays = async (req, res) => {
+const saveItinerarys = async (req, res) => {
   const errors = validationResult(req); // checking for validations
   const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
 
   const id = req.params.id;
-  const data = matchedData(req);
+  const data = req.body.form;
+  /*  const data = matchedData(req); */
   console.log("data", data);
 
   if (!errors.isEmpty()) {
@@ -743,9 +744,7 @@ const Itinerays = async (req, res) => {
   console.log("data", data);
   try {
     const user = await User.findOneAndUpdate(
-      {
-        _id: id,
-      },
+      { _id: id },
       {
         $push: {
           itinerarys: {
@@ -755,7 +754,7 @@ const Itinerays = async (req, res) => {
             no_of_ppl: data.no_of_ppl,
             preference: data.preference,
             budget: data.budget,
-            plan: data.plan,
+            itineraryDays: data.itineraryDays,
           },
         },
       },
@@ -840,7 +839,7 @@ const GetItineraryById = async (req, res) => {
 module.exports = {
   GetItineraryById,
   GetItinerarys,
-  Itinerays,
+  saveItinerarys,
   Searched,
   testUserAPI,
   CreateUser,
