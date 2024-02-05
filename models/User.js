@@ -2,56 +2,6 @@ const mongoose = require("mongoose");
 
 const { Schema } = mongoose;
 
-const activitiesSchema = new Schema({
-  activity_time: {
-    type: String,
-  },
-  activity: {
-    type: String,
-  },
-});
-
-const itineraryDaysSchema = new Schema({
-  day_no: {
-    type: String,
-  },
-  day_sub: {
-    type: String,
-  },
-  other_detail: {
-    type: String,
-  },
-  activities: [activitiesSchema],
-});
-
-const itinerarysSchema = new Schema({
-  destination: {
-    type: String,
-    required: true,
-  },
-  no_of_days: {
-    type: Number,
-    required: true,
-  },
-  start_date: {
-    type: Date,
-    required: true,
-  },
-  no_of_ppl: {
-    type: Number,
-    required: true,
-  },
-  preference: {
-    type: String,
-    required: true,
-  },
-  budget: {
-    type: Number,
-    required: true,
-  },
-  itineraryDays: [itineraryDaysSchema],
-});
-
 const UserSchema = new Schema({
   profile: {
     type: String,
@@ -118,8 +68,6 @@ const UserSchema = new Schema({
   token: {
     type: String,
   },
-
-  itinerarys: [itinerarysSchema],
 });
 
 module.exports = mongoose.model("User", UserSchema);

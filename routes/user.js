@@ -24,7 +24,7 @@ const {
   GetCurrentUser,
   ApproveUser,
   Searched,
-  saveItinerarys,
+  saveItinerary,
   GetItinerarys,
   GetItineraryById,
 } = require("../controllers/user");
@@ -32,7 +32,7 @@ const {
 //@desc Get Itinerays API
 //@route POST /api/v1/user/getitinerarybyid/:id/:itineraryid
 //@access Public
-router.get("/getitinerarybyid/:id/:itineraryid", GetItineraryById);
+router.get("/getitinerarybyid/:id", GetItineraryById);
 
 //@desc Get Itinerays API
 //@route POST /api/v1/user/getitinerays/id
@@ -43,17 +43,17 @@ router.get("/getitinerarys/:id", GetItinerarys);
 //@route POST /api/v1/user/itinerays/id
 //@access Public
 router.post(
-  "/itinerays/:id",
+  "/saveitinerays",
   /*  [
     body("destination", "destination required").notEmpty(),
     body("no_of_days", "no_of_days required").notEmpty().isNumeric(),
     body("start_date", "start_date required").notEmpty(),
-    body("no_of_ppl", "no_of_ppl required").notEmpty().isNumeric(),
+    body("no_of_ppl", "no_of_ppl required").notEmpty(),
     body("preference", "preference required").notEmpty(),
-    body("budget", "budget required").notEmpty().isNumeric(),
+    body("budget", "budget required").notEmpty(),
     body("itineraryDays", "Itinerary required").notEmpty(),
   ], */
-  saveItinerarys
+  saveItinerary
 );
 
 //@desc Searched API
