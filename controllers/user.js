@@ -6,6 +6,10 @@ const secret = "test";
 const logger = require("../config/logger.js");
 const jwt = require("jsonwebtoken");
 const GenerateToken = require("../middleWare/GenerateToken.js");
+const path = require("path");
+const multer = require("multer");
+const cloudinary = require("cloudinary").v2;
+const fs = require("fs");
 
 const testUserAPI = async (req, res) => {
   return res.status(200).send("User API test successfull");
@@ -845,7 +849,33 @@ const GetItineraryById = async (req, res) => {
   }
 };
 
+const UpdateProfileUrl = async (req, res) => {
+  const errors = validationResult(req); // checking for validations
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+  const id = req.params.id;
+  const data = matchedData(req);
+
+  if (!errors.isEmpty()) {
+    logger.error(`${ip}: API /api/v1/user/getitinerarybyid/:id/:itineraryid responded with Error`);
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  console.log("id: ", id);
+  console.log("data: ", data);
+  try {
+    const updatedProfile = await User.findOneAndUpdate({ _id: id }, { profile: data.profile_url }, { new: true });
+
+    logger.info(`${ip}: API /api/v1/user/getitinerarybyid/:id/:itineraryid responded with "found itineray by id"`);
+    return res.status(201).json({ result: updatedProfile });
+  } catch (e) {
+    logger.error(`${ip}: API /api/v1/user/getitinerarybyid/:id/:itineraryid responded with Error - ${e.message}`);
+    return res.status(500).json({ error: "Something went wrong while geting itineray by id" });
+  }
+};
+
 module.exports = {
+  UpdateProfileUrl,
   GetItineraryById,
   GetItinerarys,
   saveItinerary,

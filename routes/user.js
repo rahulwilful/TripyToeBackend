@@ -27,7 +27,13 @@ const {
   saveItinerary,
   GetItinerarys,
   GetItineraryById,
+  UpdateProfileUrl,
 } = require("../controllers/user");
+
+//@desc Get Itinerays API
+//@route POST /api/v1/user/getitinerarybyid/:id/:itineraryid
+//@access Public
+router.post("/updateprofileurl/:id", [body("profile_url", "profile_url required").notEmpty()], UpdateProfileUrl);
 
 //@desc Get Itinerays API
 //@route POST /api/v1/user/getitinerarybyid/:id/:itineraryid
