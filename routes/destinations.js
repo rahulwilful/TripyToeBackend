@@ -14,14 +14,7 @@ destinationRouter.get("/test", testDestinations_typeAPI);
 //@access Public
 destinationRouter.post(
   "/getdestinations/:id",
-  [
-    body("destination", "destination required").notEmpty(),
-    body("no_of_days", "no_of_days required").notEmpty(),
-    body("start_date", "start_date required").notEmpty(),
-    body("no_of_ppl", "no_of_ppl required").notEmpty(),
-    body("preference", "preference required").notEmpty(),
-    body("budget", "budget required").notEmpty(),
-  ],
+  [body("destination", "destination required").notEmpty(), body("end_date", "end_date required").notEmpty(), body("start_date", "start_date required").notEmpty(), body("no_of_ppl", "no_of_ppl required").notEmpty(), body("preference"), body("budget", "budget required").notEmpty()],
   GetDestinations
 );
 

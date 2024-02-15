@@ -752,7 +752,7 @@ const saveItinerary = async (req, res) => {
       {
         userId: data.id,
         destination: data.destination,
-        no_of_days: data.no_of_days,
+        end_date: data.end_date,
         start_date: data.start_date,
         no_of_ppl: data.no_of_ppl,
         preference: data.preference,

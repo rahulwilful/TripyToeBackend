@@ -7,8 +7,8 @@ const SearchedSchema = new Schema({
   destination: {
     type: String,
   },
-  no_of_days: {
-    type: Number,
+  end_date: {
+    type: Date,
   },
   start_date: {
     type: Date,
@@ -16,9 +16,7 @@ const SearchedSchema = new Schema({
   no_of_ppl: {
     type: String,
   },
-  preference: {
-    type: String,
-  },
+  preference: [String],
   budget: {
     type: String,
   },

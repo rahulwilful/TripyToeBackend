@@ -35,8 +35,8 @@ const ItinerarysSchema = new Schema({
     type: String,
     required: true,
   },
-  no_of_days: {
-    type: Number,
+  end_date: {
+    type: Date,
     required: true,
   },
   start_date: {
@@ -47,10 +47,7 @@ const ItinerarysSchema = new Schema({
     type: String,
     required: true,
   },
-  preference: {
-    type: String,
-    required: true,
-  },
+  preference: [String],
   budget: {
     type: String,
     required: true,
