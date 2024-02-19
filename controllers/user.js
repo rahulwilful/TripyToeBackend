@@ -205,7 +205,7 @@ const LogInUser = async (req, res) => {
       logger.error(`${ip}: API /api/v1/user/login  responded password incorrect`);
       return res.status(401).json({ error: "invalid password " });
     }
-    const token = jwt.sign({ user: oldUser }, secret, { expiresIn: "1m" });
+    const token = jwt.sign({ user: oldUser }, secret, { expiresIn: "1h" });
 
     logger.info(`${ip}: API /api/v1/login | Login Successfull" `);
     return res.status(200).json({ result: oldUser, token });
@@ -449,7 +449,7 @@ const GoogleLogIn = async (req, res) => {
       return res.status(400).json({ error: "User approval is still pending" });
     }
 
-    const token = jwt.sign({ user: oldUser }, secret, { expiresIn: "1m" });
+    const token = jwt.sign({ user: oldUser }, secret, { expiresIn: "1h" });
 
     logger.info(`${ip}: API /api/v1/login | Login Successfull" `);
     return res.status(200).json({ result: oldUser, token });
@@ -490,7 +490,7 @@ const FacebookLogin = async (req, res) => {
       return res.status(400).json({ error: "User approval is still pending" });
     }
 
-    const token = jwt.sign({ user: oldUser }, secret, { expiresIn: "1m" });
+    const token = jwt.sign({ user: oldUser }, secret, { expiresIn: "1h" });
 
     logger.info(`${ip}: API /api/v1/user/facebooklogin | Login Successfull" `);
     return res.status(200).json({ result: oldUser, token });
