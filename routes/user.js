@@ -28,7 +28,13 @@ const {
   GetItinerarys,
   GetItineraryById,
   UpdateProfileUrl,
+  DeleteItineraryById,
 } = require("../controllers/user");
+
+//@desc delete Itineray By Id API
+//@route POST /api/v1/user/deleteitinerarbyid/:id
+//@access Public
+router.post("/deleteitinerarbyid/:id", DeleteItineraryById);
 
 //@desc Get Itinerays API
 //@route POST /api/v1/user/getitinerarybyid/:id/:itineraryid

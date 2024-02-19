@@ -49,6 +49,7 @@ const CreateUser = async (req, res) => {
   const securedPass = await bcrypt.hash(data.password, salt);
   const token = GenerateToken();
   console.log("Token: ", token);
+
   await User.create({
     profile: "",
     facebookId: "",
@@ -201,10 +202,10 @@ const LogInUser = async (req, res) => {
     const isPassCorrect = await bcrypt.compare(password, oldUser.password);
 
     if (!isPassCorrect) {
-      logger.error(`${ip}: API /api/v1/user/login  responded password incorrect `);
+      logger.error(`${ip}: API /api/v1/user/login  responded password incorrect`);
       return res.status(401).json({ error: "invalid password " });
     }
-    const token = jwt.sign({ user: oldUser }, secret, { expiresIn: "48h" });
+    const token = jwt.sign({ user: oldUser }, secret, { expiresIn: "1m" });
 
     logger.info(`${ip}: API /api/v1/login | Login Successfull" `);
     return res.status(200).json({ result: oldUser, token });
@@ -448,7 +449,7 @@ const GoogleLogIn = async (req, res) => {
       return res.status(400).json({ error: "User approval is still pending" });
     }
 
-    const token = jwt.sign({ user: oldUser }, secret, { expiresIn: "48h" });
+    const token = jwt.sign({ user: oldUser }, secret, { expiresIn: "1m" });
 
     logger.info(`${ip}: API /api/v1/login | Login Successfull" `);
     return res.status(200).json({ result: oldUser, token });
@@ -489,7 +490,7 @@ const FacebookLogin = async (req, res) => {
       return res.status(400).json({ error: "User approval is still pending" });
     }
 
-    const token = jwt.sign({ user: oldUser }, secret, { expiresIn: "48h" });
+    const token = jwt.sign({ user: oldUser }, secret, { expiresIn: "1m" });
 
     logger.info(`${ip}: API /api/v1/user/facebooklogin | Login Successfull" `);
     return res.status(200).json({ result: oldUser, token });
@@ -804,6 +805,7 @@ const GetItinerarys = async (req, res) => {
   try {
     const itinerarys = await Itinerarys.find({
       userId: id,
+      active: true,
     });
 
     if (!itinerarys) {
@@ -874,7 +876,34 @@ const UpdateProfileUrl = async (req, res) => {
   }
 };
 
+const DeleteItineraryById = async (req, res) => {
+  const errors = validationResult(req); // checking for validations
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+  const id = req.params.id;
+
+  if (!errors.isEmpty()) {
+    logger.error(`${ip}: API /api/v1/user/deleteitinerarbyid/:id responded with Error`);
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  console.log("id: ", id);
+  try {
+    const itinerary = await Itinerarys.findOneAndUpdate({ _id: id }, { active: false });
+    if (!itinerary) {
+      logger.error(`${ip}: API /api/v1/user/deleteitinerarbyid/:id responded with "itinerary not found"`);
+      return res.status(404).json({ error: "itinerary not found" });
+    }
+    logger.info(`${ip}: API /api/v1/user/deleteitinerarbyid/:id responded with "found itineray by id"`);
+    return res.status(201).json({ result: "Itinerary Deleted Successfully" });
+  } catch (e) {
+    logger.error(`${ip}: API /api/v1/user/deleteitinerarbyid/:id responded with Error - ${e.message}`);
+    return res.status(500).json({ error: "Something went wrong while deleting itineray by id" });
+  }
+};
+
 module.exports = {
+  DeleteItineraryById,
   UpdateProfileUrl,
   GetItineraryById,
   GetItinerarys,
