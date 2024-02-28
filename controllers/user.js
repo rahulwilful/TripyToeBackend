@@ -202,6 +202,7 @@ const LogInUser = async (req, res) => {
     const isPassCorrect = await bcrypt.compare(password, oldUser.password);
 
     if (!isPassCorrect) {
+      "Trebuchet MS", sans - serif;
       logger.error(`${ip}: API /api/v1/user/login  responded password incorrect`);
       return res.status(401).json({ error: "invalid password " });
     }
@@ -377,8 +378,7 @@ const ApproveUser = async (req, res) => {
 //@access Public
 const UnApproveUser = async (req, res) => {
   const errors = validationResult(req); //checking for validations
-  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress; //wats remote address?
-
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress; //wats remote address ?
   const id = req.params.id;
   const data = matchedData(req);
   console.log(data.newProfile);
@@ -902,7 +902,38 @@ const DeleteItineraryById = async (req, res) => {
   }
 };
 
+//@desc Update Itineray By Id API
+//@route POST /api/v1/user/updateitinerarbyid/:id
+//@access Public
+const UpdateItineraryById = async (req, res) => {
+  const errors = validationResult(req); // checking for validations
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+  const id = req.params.id;
+  const data = matchedData(req);
+  if (!errors.isEmpty()) {
+    logger.error(`${ip}: API /api/v1/user/updateitinerarbyid/:id responded with Error`);
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  console.log("id: ", id, " data : ", data);
+
+  try {
+    const itinerary = await Itinerarys.findOneAndUpdate({ _id: id }, { itineraryDays: data.itineraryDays }, { new: true });
+    if (!itinerary) {
+      logger.error(`${ip}: API /api/v1/user/updateitinerarbyid/:id responded with "itinerary not found"`);
+      return res.status(404).json({ error: "itinerary not found" });
+    }
+    logger.info(`${ip}: API /api/v1/user/updateitinerarbyid/:id responded with "updated itineray "`);
+    return res.status(201).json({ result: "Itinerary Deleted Successfully" });
+  } catch (e) {
+    logger.error(`${ip}: API /api/v1/user/updateitinerarbyid/:id responded with Error - ${e.message}`);
+    return res.status(500).json({ error: "Something went wrong while updating itineray by id" });
+  }
+};
+
 module.exports = {
+  UpdateItineraryById,
   DeleteItineraryById,
   UpdateProfileUrl,
   GetItineraryById,
