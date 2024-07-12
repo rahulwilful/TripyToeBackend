@@ -3,33 +3,33 @@ const router = express.Router();
 const { body } = require("express-validator");
 const validateToken = require("../middleWare/validateToken.js");
 const {
-  testUserAPI,
-  GoogleSignUp,
+  ApproveUser,
   CreateToken,
+  CreateUser,
+  DeleteItineraryById,
+  DeleteUser,
   FacebookLogin,
   FacebookSignUp,
-  CreateUser,
-  UpdateToken,
-  varifyEmail,
-  UnApproveUser,
-  ResetPasword,
-  VarifyUser,
-  LogInUser,
-  GoogleLogIn,
-  UpdateUser,
-  DeleteUser,
+  GetCurrentUser,
+  GetItineraryById,
+  GetItinerarys,
   GetNewUsers,
   GetUserById,
   GetUsers,
-  GetCurrentUser,
-  ApproveUser,
+  GoogleLogIn,
+  GoogleSignUp,
+  LogInUser,
+  ResetPasword,
   Searched,
-  saveItinerary,
-  GetItinerarys,
-  GetItineraryById,
+  testUserAPI,
+  UnApproveUser,
   UpdateProfileUrl,
-  DeleteItineraryById,
   UpdateItineraryById,
+  UpdateToken,
+  UpdateUser,
+  VarifyUser,
+  varifyEmail,
+  saveItinerary,
 } = require("../controllers/user");
 
 //@desc Update Itineray By Id API
@@ -42,8 +42,8 @@ router.post("/updateitinerarbyid/:id", [body("itineraryDays", "itineraryDays req
 //@access Public
 router.post("/deleteitinerarbyid/:id", DeleteItineraryById);
 
-//@desc Get Itinerays API
-//@route POST /api/v1/user/getitinerarybyid/:id/:itineraryid
+//@desc Update Profile Url API
+//@route POST /api/v1/user/updateprofileurl/:id
 //@access Public
 router.post("/updateprofileurl/:id", [body("profile_url", "profile_url required").notEmpty()], UpdateProfileUrl);
 

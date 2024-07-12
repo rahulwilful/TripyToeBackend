@@ -6,6 +6,7 @@ const secret = "test";
 const logger = require("../config/logger.js");
 const jwt = require("jsonwebtoken");
 const GenerateToken = require("../middleWare/GenerateToken.js");
+
 const path = require("path");
 const multer = require("multer");
 const cloudinary = require("cloudinary").v2;
@@ -202,11 +203,10 @@ const LogInUser = async (req, res) => {
     const isPassCorrect = await bcrypt.compare(password, oldUser.password);
 
     if (!isPassCorrect) {
-      "Trebuchet MS", sans - serif;
       logger.error(`${ip}: API /api/v1/user/login  responded password incorrect`);
       return res.status(401).json({ error: "invalid password " });
     }
-    const token = jwt.sign({ user: oldUser }, secret, { expiresIn: "1h" });
+    const token = jwt.sign({ user: oldUser }, secret, { expiresIn: "168h" });
 
     logger.info(`${ip}: API /api/v1/login | Login Successfull" `);
     return res.status(200).json({ result: oldUser, token });
@@ -306,6 +306,7 @@ const GetUserById = async (req, res) => {
 //@desc Get Users API
 //@route GET /api/v1/user/getallusers
 //@access Public
+
 const GetUsers = async (req, res) => {
   const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
 
@@ -851,6 +852,9 @@ const GetItineraryById = async (req, res) => {
   }
 };
 
+//@desc Update Profile Url API
+//@route POST /api/v1/user/updateprofileurl/:id
+//@access Public
 const UpdateProfileUrl = async (req, res) => {
   const errors = validationResult(req); // checking for validations
   const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
@@ -859,7 +863,7 @@ const UpdateProfileUrl = async (req, res) => {
   const data = matchedData(req);
 
   if (!errors.isEmpty()) {
-    logger.error(`${ip}: API /api/v1/user/getitinerarybyid/:id/:itineraryid responded with Error`);
+    logger.error(`${ip}: API /api/v1/user/updateprofileurl/:id responded with Error`);
     return res.status(400).json({ errors: errors.array() });
   }
 
@@ -868,14 +872,17 @@ const UpdateProfileUrl = async (req, res) => {
   try {
     const updatedProfile = await User.findOneAndUpdate({ _id: id }, { profile: data.profile_url }, { new: true });
 
-    logger.info(`${ip}: API /api/v1/user/getitinerarybyid/:id/:itineraryid responded with "found itineray by id"`);
+    logger.info(`${ip}: API /api/v1/user/updateprofileurl/:id responded with "profile Url Updated"`);
     return res.status(201).json({ result: updatedProfile });
   } catch (e) {
-    logger.error(`${ip}: API /api/v1/user/getitinerarybyid/:id/:itineraryid responded with Error - ${e.message}`);
-    return res.status(500).json({ error: "Something went wrong while geting itineray by id" });
+    logger.error(`${ip}: API /api/v1/user/updateprofileurl/:id responded with Error - ${e.message}`);
+    return res.status(500).json({ error: "Something went wrong while updating profile Url" });
   }
 };
 
+//@desc delete Itineray By Id API
+//@route POST /api/v1/user/deleteitinerarbyid/:id
+//@access Public
 const DeleteItineraryById = async (req, res) => {
   const errors = validationResult(req); // checking for validations
   const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
