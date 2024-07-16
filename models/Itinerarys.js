@@ -3,6 +3,15 @@ const User = require("./User.js");
 
 const { Schema } = mongoose;
 
+const DayNameEntitySchema = new Schema({
+  name: {
+    type: String,
+  },
+  url: {
+    type: String,
+  },
+});
+
 const ActivitiesSchema = new Schema({
   activity_time: {
     type: String,
@@ -12,17 +21,27 @@ const ActivitiesSchema = new Schema({
   },
 });
 
-const ItineraryDaysSchema = new Schema({
+const DaysSchema = new Schema({
   day_no: {
     type: String,
   },
-  day_sub: {
+  day_subject: {
     type: String,
   },
   other_detail: {
     type: String,
   },
   activities: [ActivitiesSchema],
+  day_name_entity: [DayNameEntitySchema],
+});
+
+const ItineraryDaysSchema = new Schema({
+  day: [DaysSchema],
+
+  modify: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const ItinerarysSchema = new Schema({
@@ -36,11 +55,11 @@ const ItinerarysSchema = new Schema({
     required: true,
   },
   end_date: {
-    type: Date,
+    type: String,
     required: true,
   },
   start_date: {
-    type: Date,
+    type: String,
     required: true,
   },
   no_of_ppl: {
