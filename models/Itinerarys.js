@@ -21,7 +21,7 @@ const ActivitiesSchema = new Schema({
   },
 });
 
-const DaysSchema = new Schema({
+const DaySchema = new Schema({
   day_no: {
     type: String,
   },
@@ -36,7 +36,7 @@ const DaysSchema = new Schema({
 });
 
 const ItineraryDaysSchema = new Schema({
-  day: [DaysSchema],
+  day: [DaySchema],
 
   modify: {
     type: Boolean,
