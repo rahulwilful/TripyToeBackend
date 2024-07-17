@@ -28,9 +28,10 @@ const AddDestinations = async (req, res) => {
       title: data.title,
       imageUrl: data.imageUrl,
       location: data.location,
-      where: data.where,
+      where: data.where || "",
       tags: data.tags,
       category: data.category,
+      how_to_reach: data.how_to_reach || "",
       about: data.about,
     });
 

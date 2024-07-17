@@ -15,10 +15,16 @@ const destinationSchema = new Schema({
     type: String,
     required: true,
   },
+  where: {
+    type: String,
+  },
   tags: [String],
   category: {
     type: String,
     required: true,
+  },
+  how_to_reach: {
+    type: String,
   },
   about: {
     type: String,

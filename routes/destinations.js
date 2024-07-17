@@ -18,9 +18,10 @@ destinationRouter.post(
     body("title", "title required").notEmpty(),
     body("imageUrl", "imageUrl required").notEmpty(),
     body("location", "location required").notEmpty(),
-    body("where", "where required").notEmpty(),
+    body("where"),
     body("tags", "tags required").notEmpty(),
     body("category", "category required").notEmpty(),
+    body("how_to_reach"),
     body("about", "about required").notEmpty(),
   ],
   AddDestinations
