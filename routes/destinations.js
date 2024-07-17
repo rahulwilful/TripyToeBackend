@@ -14,7 +14,15 @@ destinationRouter.get("/test", testDestinations_typeAPI);
 //@access Public
 destinationRouter.post(
   "/add-destination",
-  [body("title", "title required").notEmpty(), body("imageUrl", "imageUrl required").notEmpty(), body("location", "location required").notEmpty(), body("tags", "tags required").notEmpty(), body("category", "category required").notEmpty(), body("about", "about required").notEmpty()],
+  [
+    body("title", "title required").notEmpty(),
+    body("imageUrl", "imageUrl required").notEmpty(),
+    body("location", "location required").notEmpty(),
+    body("where", "where required").notEmpty(),
+    body("tags", "tags required").notEmpty(),
+    body("category", "category required").notEmpty(),
+    body("about", "about required").notEmpty(),
+  ],
   AddDestinations
 );
 
