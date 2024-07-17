@@ -2,20 +2,20 @@ const express = require("express");
 const destinationRouter = express.Router();
 const { body } = require("express-validator");
 
-const { testDestinations_typeAPI, GetDestinations } = require("../controllers/destinations");
+const { testDestinations_typeAPI, AddDestinations } = require("../controllers/destinations");
 
 //@desc Test Destiations API
 //@route GET /api/v1/destination/test
 //@access Public
 destinationRouter.get("/test", testDestinations_typeAPI);
 
-//@desc Get Destinations API
-//@route GET /api/v1/destination/getdestinations/:id
+//@desc Add Destinations API
+//@route POST add-destination
 //@access Public
 destinationRouter.post(
-  "/getdestinations/:id",
-  [body("destination", "destination required").notEmpty(), body("end_date", "end_date required").notEmpty(), body("start_date", "start_date required").notEmpty(), body("no_of_ppl", "no_of_ppl required").notEmpty(), body("preference"), body("budget", "budget required").notEmpty()],
-  GetDestinations
+  "/add-destination",
+  [body("title", "title required").notEmpty(), body("imageUrl", "imageUrl required").notEmpty(), body("location", "location required").notEmpty(), body("tags", "tags required").notEmpty(), body("category", "category required").notEmpty(), body("about", "about required").notEmpty()],
+  AddDestinations
 );
 
 module.exports = destinationRouter;
