@@ -28,6 +28,7 @@ const AddDestinations = async (req, res) => {
       title: data.title,
       imageUrl: data.imageUrl,
       location: data.location,
+      where: data.where,
       tags: data.tags,
       category: data.category,
       about: data.about,
