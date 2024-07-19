@@ -10,9 +10,9 @@ const testDestinations_typeAPI = async (req, res) => {
 //@desc Get Destinations API
 //@route GET destination/add-destination
 //@access Public
-const AddDestinations = async (req, res) => {
+const AddDestination = async (req, res) => {
   const errors = validationResult(req); //checking for validations
-  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress; //wats remote address?
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress; //whats remote address?
 
   if (!errors.isEmpty()) {
     logger.error(`${ip}: API  destinations/add-destination |  responnded with Error `);
@@ -39,11 +39,36 @@ const AddDestinations = async (req, res) => {
     return res.status(201).json({ result: response });
   } catch (e) {
     logger.error(` API | destinations/add-destination |  responnded with Error "while adding destinations" `);
-    return res.status(500).json(e, " Something went wrong while retriving destinations");
+    return res.status(500).json(e, " Something went wrong while while adding destinations");
+  }
+};
+
+//@desc Get Destinations API
+//@route GET get-destination
+//@access Public
+const GetDestination = async (req, res) => {
+  const destination = req.params.destination;
+
+  console.log("destination: ", destination);
+
+  try {
+    const response = await Destination.find({
+      title: { $regex: new RegExp(destination, "i") },
+    });
+
+    if (response) {
+      return res.status(200).json({ result: response[0] });
+    } else {
+      return res.status(200).json({ result: "No match found for destination" });
+    }
+  } catch (err) {
+    console.log("error: ", err);
+    return res.status(500).json(err, "Something went wrong while geting destinations");
   }
 };
 
 module.exports = {
   testDestinations_typeAPI,
-  AddDestinations,
+  AddDestination,
+  GetDestination,
 };

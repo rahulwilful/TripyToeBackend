@@ -2,7 +2,7 @@ const express = require("express");
 const destinationRouter = express.Router();
 const { body } = require("express-validator");
 
-const { testDestinations_typeAPI, AddDestinations } = require("../controllers/destinations");
+const { testDestinations_typeAPI, AddDestination, GetDestination } = require("../controllers/destinations");
 
 //@desc Test Destiations API
 //@route GET /api/v1/destination/test
@@ -24,7 +24,12 @@ destinationRouter.post(
     body("how_to_reach"),
     body("about", "about required").notEmpty(),
   ],
-  AddDestinations
+  AddDestination
 );
+
+//@desc Get Destinations API
+//@route GET get-destination
+//@access Public
+destinationRouter.get("/get-destination/:destination", GetDestination);
 
 module.exports = destinationRouter;

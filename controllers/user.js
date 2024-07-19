@@ -303,23 +303,6 @@ const GetUserById = async (req, res) => {
   }
 };
 
-//@desc Get Users API
-//@route GET /api/v1/user/getallusers
-//@access Public
-
-const GetUsers = async (req, res) => {
-  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-
-  try {
-    const allUsers = await User.find();
-    logger.info(`${ip}: API /api/v1/user/getallusers | responnded with "Fetchd all the users" `);
-    return res.status(200).json(allUsers);
-  } catch (e) {
-    logger.error(`${ip}: API /api/v1/user/getallusers  responnded with Error  " somethung went wrong" `);
-    return res.status(500).json({ e: "Something went wrong" });
-  }
-};
-
 //@desc Get Current User API
 //@route GET /api/v1/user/getcurrentuser
 //@access Public
@@ -786,72 +769,6 @@ const saveItinerary = async (req, res) => {
   }
 };
 
-//@desc Get GetItinerarys API
-//@route POST /api/v1/user/getitinerays/:id
-//@access Public
-const GetItinerarys = async (req, res) => {
-  const errors = validationResult(req); // checking for validations
-  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-
-  const id = req.params.id;
-  const data = matchedData(req);
-  console.log("data", data);
-
-  if (!errors.isEmpty()) {
-    logger.error(`${ip}: API /api/v1/user/getitinerays/:id responded with Error`);
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  console.log("data", data);
-  try {
-    const itinerarys = await Itinerarys.find({
-      userId: id,
-      active: true,
-    });
-
-    if (!itinerarys) {
-      logger.error(`${ip}: API /api/v1/user/getitinerays/:id responded with "itinerarys not found"`);
-      return res.status(404).json({ error: "itinerarys not found" });
-    }
-
-    logger.info(`${ip}: API /api/v1/user/getitinerays/:id responded with "itinerays"`);
-    return res.status(201).json({ result: itinerarys });
-  } catch (e) {
-    logger.error(`${ip}: API /api/v1/user/getitinerays/:id responded with Error - ${e.message}`);
-    return res.status(500).json({ error: "Something went wrong while geting itinerays" });
-  }
-};
-
-//@desc Get GetItinerarys API
-//@route POST /api/v1/user/getitinerays/:id
-//@access Public
-const GetItineraryById = async (req, res) => {
-  const errors = validationResult(req); // checking for validations
-  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-
-  const id = req.params.id;
-
-  if (!errors.isEmpty()) {
-    logger.error(`${ip}: API /api/v1/user/getitinerarybyid/:id/:itineraryid responded with Error`);
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  console.log("id: ", id);
-  try {
-    const itinerary = await Itinerarys.findOne({ _id: id });
-
-    if (!itinerary) {
-      logger.error(`${ip}: API /api/v1/user/getitinerarybyid/:id/:itineraryid responded with "itinerary not found"`);
-      return res.status(404).json({ error: "User does not exist" });
-    }
-    logger.info(`${ip}: API /api/v1/user/getitinerarybyid/:id/:itineraryid responded with "found itineray by id"`);
-    return res.status(201).json({ result: itinerary });
-  } catch (e) {
-    logger.error(`${ip}: API /api/v1/user/getitinerarybyid/:id/:itineraryid responded with Error - ${e.message}`);
-    return res.status(500).json({ error: "Something went wrong while geting itineray by id" });
-  }
-};
-
 //@desc Update Profile Url API
 //@route POST /api/v1/user/updateprofileurl/:id
 //@access Public
@@ -939,21 +856,102 @@ const UpdateItineraryById = async (req, res) => {
   }
 };
 
+//@desc Get GetItinerarys API
+//@route POST /api/v1/user/getitinerays/:id
+//@access Public
+const GetItineraryById = async (req, res) => {
+  const errors = validationResult(req); // checking for validations
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+  const id = req.params.id;
+
+  if (!errors.isEmpty()) {
+    logger.error(`${ip}: API /api/v1/user/getitinerarybyid/:id/:itineraryid responded with Error`);
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  console.log("id: ", id);
+  try {
+    const itinerary = await Itinerarys.findOne({ _id: id });
+
+    if (!itinerary) {
+      logger.error(`${ip}: API /api/v1/user/getitinerarybyid/:id/:itineraryid responded with "itinerary not found"`);
+      return res.status(404).json({ error: "User does not exist" });
+    }
+    logger.info(`${ip}: API /api/v1/user/getitinerarybyid/:id/:itineraryid responded with "found itineray by id"`);
+    return res.status(201).json({ result: itinerary });
+  } catch (e) {
+    logger.error(`${ip}: API /api/v1/user/getitinerarybyid/:id/:itineraryid responded with Error - ${e.message}`);
+    return res.status(500).json({ error: "Something went wrong while geting itineray by id" });
+  }
+};
+
+//@desc Get GetItinerarys API
+//@route POST /api/v1/user/getitinerays/:id
+//@access Public
+const GetItinerarys = async (req, res) => {
+  const errors = validationResult(req); // checking for validations
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+  const id = req.params.id;
+  const data = matchedData(req);
+  console.log("data", data);
+
+  if (!errors.isEmpty()) {
+    logger.error(`${ip}: API /api/v1/user/getitinerays/:id responded with Error`);
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  console.log("data", data);
+  try {
+    const itinerarys = await Itinerarys.find({
+      userId: id,
+      active: true,
+    });
+
+    if (!itinerarys) {
+      logger.error(`${ip}: API /api/v1/user/getitinerays/:id responded with "itinerarys not found"`);
+      return res.status(404).json({ error: "itinerarys not found" });
+    }
+
+    logger.info(`${ip}: API /api/v1/user/getitinerays/:id responded with "itinerays"`);
+    return res.status(201).json({ result: itinerarys });
+  } catch (e) {
+    logger.error(`${ip}: API /api/v1/user/getitinerays/:id responded with Error - ${e.message}`);
+    return res.status(500).json({ error: "Something went wrong while geting itinerays" });
+  }
+};
+
+//@desc Get Users API
+//@route GET /api/v1/user/getallusers
+//@access Public
+
+const GetUsers = async (req, res) => {
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+  try {
+    const allUsers = await User.find();
+    logger.info(`${ip}: API /api/v1/user/getallusers | responnded with "Fetchd all the users" `);
+    return res.status(200).json(allUsers);
+  } catch (e) {
+    logger.error(`${ip}: API /api/v1/user/getallusers  responnded with Error  " somethung went wrong" `);
+    return res.status(500).json({ e: "Something went wrong" });
+  }
+};
+
 module.exports = {
   UpdateItineraryById,
   DeleteItineraryById,
   UpdateProfileUrl,
-  GetItineraryById,
-  GetItinerarys,
-  saveItinerary,
   Searched,
+  saveItinerary,
   testUserAPI,
   CreateUser,
   LogInUser,
   UpdateUser,
   DeleteUser,
   GetUserById,
-  GetUsers,
+
   GetCurrentUser,
   ApproveUser,
   UnApproveUser,
@@ -967,4 +965,7 @@ module.exports = {
   CreateToken,
   FacebookSignUp,
   FacebookLogin,
+  GetItineraryById,
+  GetItinerarys,
+  GetUsers,
 };
