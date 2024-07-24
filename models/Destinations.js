@@ -18,6 +18,14 @@ const destinationSchema = new Schema({
   where: {
     type: String,
   },
+  start_month: {
+    type: String,
+    required: true,
+  },
+  end_month: {
+    type: String,
+    required: true,
+  },
   tags: [String],
   category: {
     type: String,

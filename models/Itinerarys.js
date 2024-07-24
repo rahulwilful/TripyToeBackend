@@ -75,8 +75,20 @@ const ItinerarysSchema = new Schema({
     type: Boolean,
     default: true,
   },
-
   itineraryDays: [ItineraryDaysSchema],
+
+  about_destination: {
+    type: String,
+  },
+  currency_destination: {
+    type: String,
+  },
+  language_destination: {
+    type: String,
+  },
+  weather_destination: {
+    type: String,
+  },
 });
 
 module.exports = mongoose.model("Itinerarys", ItinerarysSchema);

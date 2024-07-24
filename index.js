@@ -81,6 +81,7 @@ app.post("/user/updateprofile", upload2.single("image"), (req, res) => {
 });
 
 app.use("/user", require("./routes/user.js"));
+app.use("/roles", require("./routes/roleType.js"));
 app.use("/config", require("./routes/config.js"));
 app.use("/destinations", require("./routes/destinations.js"));
 

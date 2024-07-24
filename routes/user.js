@@ -7,6 +7,7 @@ const {
   ApproveUser,
   CreateToken,
   CreateUser,
+  CreateSuperAdmin,
   DeleteItineraryById,
   DeleteUser,
   FacebookLogin,
@@ -27,7 +28,9 @@ const {
   UpdateProfileUrl,
   UpdateItineraryById,
   UpdateToken,
+  UpdateRoleType,
   UpdateUser,
+  SearchByName,
   VarifyUser,
   varifyEmail,
   saveItinerary,
@@ -63,15 +66,19 @@ router.get("/getitinerarys/:id", GetItinerarys);
 //@access Public
 router.post(
   "/saveitinerays",
-  /*  [
+  [
     body("destination", "destination required").notEmpty(),
-    body("no_of_days", "no_of_days required").notEmpty().isNumeric(),
+
     body("start_date", "start_date required").notEmpty(),
     body("no_of_ppl", "no_of_ppl required").notEmpty(),
     body("preference", "preference required").notEmpty(),
     body("budget", "budget required").notEmpty(),
-    body("itineraryDays", "Itinerary required").notEmpty(),
-  ], */
+    body("itineraryDays", "ItineraryDays required").notEmpty(),
+    body("about_destination", "about_destination required").notEmpty(),
+    body("currency_destination", "currency_destination required").notEmpty(),
+    body("language_destination", "ItineraryDays required").notEmpty(),
+    body("weather_destination", "weather_destination required").notEmpty(),
+  ],
   saveItinerary
 );
 
@@ -99,6 +106,11 @@ router.post("/varifyemail/:id/:token", varifyEmail);
 //@route GET /api/v1/user/updatetoken/:id
 //@access Public
 router.post("/updatetoken/:id", [body("token", "Token for email not found").notEmpty()], UpdateToken);
+
+//@desc Upadate Role Type  API
+//@route POST user/update_roletype/:id
+//@access Admin
+router.post("/update_roletype/:id", [body("role_type", "role_type requird").notEmpty()], UpdateRoleType);
 
 //@desc Google Sign In API
 //@route POST /api/v1/user/googlesignin
@@ -150,8 +162,26 @@ router.post(
     body("password", "Password must have atlest 5 character").isLength({
       min: 5,
     }),
+    body("role_type"),
   ],
   CreateUser
+);
+
+//@desc Create User API
+//@route POST user/add/add-superadmin
+//@access Public
+router.post(
+  "/add-superadmin",
+  [
+    body("name", "Enter a valid Name").isLength({ min: 3 }),
+    body("email", "Enter a Valid Email").isEmail(),
+    body("mobile_no", "Enter a Valid Whatsapp Number").isNumeric(),
+    body("password", "Password must have atlest 5 character").isLength({
+      min: 5,
+    }),
+    body("role_type"),
+  ],
+  CreateSuperAdmin
 );
 
 //@desc LogIn User API
@@ -186,6 +216,20 @@ router.post(
   UpdateUser
 );
 
+//@desc Update User API
+//@route GET user/search-byname
+//@access Super Admin
+router.post(
+  "/search-byname",
+  [
+    body("name", "Enter a valid name").isLength({
+      min: 1,
+    }),
+  ],
+  validateToken,
+  SearchByName
+);
+
 //@desc Delete User API
 //@route GET /api/v1/user/delete
 //@access Public
@@ -199,7 +243,7 @@ router.get("/get/:id", GetUserById);
 //@desc Get All Users API
 //@route GET /api/v1/user/getallusers
 //@access Public
-router.get("/getallusers", GetUsers);
+router.get("/getallusers", validateToken, GetUsers);
 
 //@desc Get New Users API
 //@route GET /api/v1/user/getnewusers

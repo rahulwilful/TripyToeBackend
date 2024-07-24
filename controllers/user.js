@@ -1,5 +1,6 @@
 const { validationResult, matchedData } = require("express-validator");
 const User = require("../models/User");
+const RoleType = require("../models/RoleType");
 const Itinerarys = require("../models/Itinerarys");
 const bcrypt = require("bcryptjs");
 const secret = "test";
@@ -51,12 +52,89 @@ const CreateUser = async (req, res) => {
   const token = GenerateToken();
   console.log("Token: ", token);
 
+  let role = "";
+  if (data.role_type) {
+    role = data.role_type;
+  } else {
+    let temp = await RoleType.findOne({ name: "user" });
+    role = temp._id;
+  }
+  console.log("role: ", role);
+
   await User.create({
     profile: "",
     facebookId: "",
     googleId: "",
     facebookId: "",
     name: data.name,
+    role_type: role,
+    email: data.email,
+    mobile_no: data.mobile_no,
+    password: securedPass,
+    whatsapp_status: false,
+    whatsapp_no: "",
+    instagram: "",
+    facebook: "",
+    otp: "",
+    token: token,
+  })
+    .then((user) => {
+      logger.info(`${ip}: API /api/v1/user/add  responnded with Success `);
+      return res.status(201).json({ result: user });
+    })
+    .catch((err) => {
+      logger.error(`${ip}: API /api/v1/user/add  responnded with Error `);
+      return res.status(500).json({ message: err.message });
+    });
+};
+
+//@desc Create User API
+//@route POST user/add/add-superadmin
+//@access Public
+const CreateSuperAdmin = async (req, res) => {
+  const errors = validationResult(req); //checking for validations
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress; //wats remote address?
+
+  //if error return
+  if (!errors.isEmpty()) {
+    logger.error(`${ip}: API /api/v1/user/add  responnded with Error `);
+    return res.status(401).json({ errors: errors.array() });
+  }
+  const data = matchedData(req);
+  if (!data.mobile_no) {
+    logger.error(`${ip}: API /api/v1/user/add  responnded with "mobile no required" `);
+    return res.status(401).json({ message: "mobile no required" });
+  }
+
+  if (!data.password) {
+    logger.error(`${ip}: API /api/v1/user/add  responnded with "password required" `);
+    return res.status(403).json({ message: "password required" });
+  }
+  if (!data.email) {
+    logger.error(`${ip}: API /api/v1/user/add  responnded with "email required" `);
+    return res.status(402).json({ message: "email required" });
+  }
+  const oldUser = await User.findOne({ email: data.email });
+
+  if (oldUser) {
+    logger.error(`${ip}: API /api/v1/user/add  responnded with User already registered! for email: ${data.email} `);
+    return res.status(400).json({ message: "User already registered!" });
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const securedPass = await bcrypt.hash(data.password, salt);
+  const token = GenerateToken();
+  console.log("Token: ", token);
+
+  let role = await RoleType.findOne({ name: "super_admin" });
+
+  await User.create({
+    profile: "",
+    facebookId: "",
+    googleId: "",
+    facebookId: "",
+    name: data.name,
+    role_type: role._id,
     email: data.email,
     mobile_no: data.mobile_no,
     password: securedPass,
@@ -98,11 +176,15 @@ const GoogleSignUp = async (req, res) => {
     return res.status(400).json({ message: "User already registered!" });
   }
 
+  let temp = await RoleType.findOne({ name: "user" });
+  const role = temp._id;
+
   await User.create({
     profile: "",
     googleId: data.googleId,
     facebookId: "",
     name: data.name,
+    role_type: role,
     email: data.email,
     mobile_no: "",
     email_verified: true,
@@ -144,12 +226,17 @@ const FacebookSignUp = async (req, res) => {
     logger.error(`${ip}: API /api/v1/user/facebooksignup  responnded with User already registered! `);
     return res.status(400).json({ message: "User already registered!" });
   }
+
   console.log("2", data.facebookId);
+  let temp = await RoleType.findOne({ name: "user" });
+  const role = temp._id;
+
   await User.create({
     profile: "",
     googleId: "",
     facebookId: data.facebookId,
     name: data.name,
+    role_type: role,
     email: "",
     mobile_no: "",
     email_verified: false,
@@ -263,7 +350,10 @@ const DeleteUser = async (req, res) => {
 
   try {
     if (req.user) {
-      await User.findOneAndUpdate({ _id: req.params.id }, { active: false });
+      const user = await User.findOne({ _id: req.params.id });
+
+      await User.findOneAndUpdate({ _id: req.params.id }, { active: !user.active });
+
       logger.info(`${ip}: API /api/v1/user/delete | responnded with "User deleted successfully" `);
       return res.status(201).json("User deleted successfully");
     } else {
@@ -289,7 +379,7 @@ const GetUserById = async (req, res) => {
   }
   console.log(userId);
   try {
-    const user = await User.findById({ _id: userId });
+    const user = await User.findById({ _id: userId }).populate({ path: "role_type", select: ["name", "value", "active"] });
 
     if (!user) {
       logger.error(`${ip}: API /api/v1/user/get/:id  responded 'user not found' `);
@@ -314,6 +404,38 @@ const GetCurrentUser = async (req, res) => {
       logger.error(`${ip}: API /api/v1/user/getcurrentuser  responnded with Error , "Unautherized user " `);
       return res.status(500).json({ message: "Unauthorized user" });
     }
+
+    const user = await User.findOne({ _id: req.user._id }).populate({ path: "role_type", select: ["name", "value", "active"] });
+    console.log("req.user: ", user);
+
+    logger.info(`${ip}: API /api/v1/getcurrentuser | responnded with "Successfully retreived current user" `);
+    return res.status(200).json({ data: user, message: "User Retrived" });
+  } catch (e) {
+    logger.error(`${ip}: API /api/v1/user/getcurrentuser  responnded with Error, " somthing went wrong"`);
+    return res.status(500).json({ message: "Something went wrong current user not found" });
+  }
+};
+
+//@desc Get Verify Admin API
+//@route GET /user/verify-admin
+//@access Public
+const VerifyAdmin = async (req, res) => {
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress; //wats remote address?
+
+  try {
+    if (!req.user) {
+      logger.error(`${ip}: API /api/v1/user/getcurrentuser  responnded with Error , "Unautherized user " `);
+      return res.status(500).json({ message: "Unauthorized user" });
+    }
+
+    let role = await RoleType.findById(req.user.role_type);
+    if (role.name != "super_admin") {
+      console.log("note a super admin");
+      logger.info(`${ip}: API /api/v1/getcurrentuser | responnded with "note a super admin" `);
+      return res.status(401).json({ data: req.user, message: "note a super admin" });
+    }
+    console.log("role", role);
+    console.log("role", role);
 
     logger.info(`${ip}: API /api/v1/getcurrentuser | responnded with "Successfully retreived current user" `);
     return res.status(200).json({ data: req.user, message: "User Retrived" });
@@ -743,6 +865,10 @@ const saveItinerary = async (req, res) => {
         preference: data.preference,
         budget: data.budget,
         itineraryDays: data.itineraryDays,
+        about_destination: data.about_destination || "",
+        currency_destination: data.currency_destination || "",
+        language_destination: data.language_destination || "",
+        weather_destination: data.weather_destination || "",
       }
 
       /*   {
@@ -794,6 +920,34 @@ const UpdateProfileUrl = async (req, res) => {
   } catch (e) {
     logger.error(`${ip}: API /api/v1/user/updateprofileurl/:id responded with Error - ${e.message}`);
     return res.status(500).json({ error: "Something went wrong while updating profile Url" });
+  }
+};
+
+//@desc Upadate Role Type  API
+//@route POST user/update_roletype/:id
+//@access Admin
+const UpdateRoleType = async (req, res) => {
+  const errors = validationResult(req); // checking for validations
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+  const id = req.params.id;
+  const data = matchedData(req);
+
+  if (!errors.isEmpty()) {
+    logger.error(`${ip}: API /user/update_roletype/:id responded with Error`);
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  console.log("id: ", id);
+  console.log("data: ", data);
+  try {
+    const updatedProfile = await User.findOneAndUpdate({ _id: id }, { role_type: data.role_type }, { new: true });
+
+    logger.info(`${ip}: API /user/update_roletype/:id responded with "role_type  Updated"`);
+    return res.status(201).json({ result: updatedProfile });
+  } catch (e) {
+    logger.error(`${ip}: API /user/update_roletype/:id responded with Error - ${e.message}`);
+    return res.status(500).json({ error: "Something went wrong while updating role_type" });
   }
 };
 
@@ -923,23 +1077,78 @@ const GetItinerarys = async (req, res) => {
 };
 
 //@desc Get Users API
-//@route GET /api/v1/user/getallusers
+//@route GET user/getallusers
 //@access Public
 
 const GetUsers = async (req, res) => {
   const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
 
   try {
+    if (!req.user) {
+      logger.error(`${ip}: API /user/getallusers  responnded with Error , "Unautherized user " `);
+      return res.status(500).json({ message: "Unauthorized user" });
+    }
+
+    const user = await User.findOne({ _id: req.user._id }).populate({ path: "role_type", select: ["name", "value", "active"] });
+    console.log("req.user: ", user);
+
+    if (user.role_type.name != "super_admin") {
+      logger.error(`${ip}: API /user/getallusers  responnded with Error , "Unautherized user " `);
+      return res.status(401).json({ message: "Unauthorized user" });
+    }
+
     const allUsers = await User.find();
-    logger.info(`${ip}: API /api/v1/user/getallusers | responnded with "Fetchd all the users" `);
+    logger.info(`${ip}: API /user/getallusers | responnded with "Fetchd all the users" `);
     return res.status(200).json(allUsers);
   } catch (e) {
-    logger.error(`${ip}: API /api/v1/user/getallusers  responnded with Error  " somethung went wrong" `);
+    logger.error(`${ip}: API /user/getallusers  responnded with Error  " somethung went wrong" `);
     return res.status(500).json({ e: "Something went wrong" });
   }
 };
 
+//@desc Update User API
+//@route GET user/search-byname
+//@access Super Admin
+const SearchByName = async (req, res) => {
+  const errors = validationResult(req); // checking for validations
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+  const id = req.params.id;
+  const data = matchedData(req);
+  console.log("data", data);
+
+  try {
+    if (!req.user) {
+      logger.error(`${ip}: API /user/getallusers  responnded with Error , "Unautherized user " `);
+      return res.status(500).json({ message: "Unauthorized user" });
+    }
+
+    const user = await User.findOne({ _id: req.user._id }).populate({ path: "role_type", select: ["name", "value", "active"] });
+
+    if (user.role_type.name != "super_admin") {
+      logger.error(`${ip}: API /user/getallusers  responnded with Error , "Unautherized user " `);
+      return res.status(401).json({ message: "Unauthorized user" });
+    }
+
+    const response = await User.find({
+      name: { $regex: new RegExp(data.name, "i") },
+    });
+
+    console.log(response);
+
+    if (response) {
+      return res.status(200).json({ result: response });
+    } else {
+      return res.status(200).json({ result: "" });
+    }
+  } catch (err) {
+    console.log("error: ", err);
+    return res.status(500).json(err, "Something went wrong while geting destinations");
+  }
+};
+
 module.exports = {
+  SearchByName,
   UpdateItineraryById,
   DeleteItineraryById,
   UpdateProfileUrl,
@@ -947,12 +1156,13 @@ module.exports = {
   saveItinerary,
   testUserAPI,
   CreateUser,
+  CreateSuperAdmin,
   LogInUser,
   UpdateUser,
   DeleteUser,
   GetUserById,
-
   GetCurrentUser,
+  VerifyAdmin,
   ApproveUser,
   UnApproveUser,
   GetNewUsers,
@@ -968,4 +1178,5 @@ module.exports = {
   GetItineraryById,
   GetItinerarys,
   GetUsers,
+  UpdateRoleType,
 };
