@@ -8,10 +8,10 @@ const SearchedSchema = new Schema({
     type: String,
   },
   end_date: {
-    type: Date,
+    type: String,
   },
   start_date: {
-    type: Date,
+    type: String,
   },
   no_of_ppl: {
     type: String,

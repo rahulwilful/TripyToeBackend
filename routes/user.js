@@ -22,7 +22,7 @@ const {
   GoogleSignUp,
   LogInUser,
   ResetPasword,
-  Searched,
+  SaveSearched,
   testUserAPI,
   UnApproveUser,
   UpdateProfileUrl,
@@ -85,7 +85,11 @@ router.post(
 //@desc Searched API
 //@route POST /api/v1/user/searched/id
 //@access Public
-router.post("/searched/:id", [body("destination", "destination required"), body("no_of_days", "no_of_days required"), body("start_date", "start_date required"), body("no_of_ppl", "no_of_ppl required"), body("preference", "preference required"), body("budget", "budget required")], Searched);
+router.post(
+  "/searched",
+  [body("destination", "destination required"), body("end_date", "end_date required"), body("start_date", "start_date required"), body("no_of_ppl", "no_of_ppl required"), body("preference", "preference required"), body("budget", "budget required"), body("id", "id required")],
+  SaveSearched
+);
 
 //@desc Facebook Sign Up API
 //@route POST /api/v1/user/facebooksignup
@@ -135,6 +139,7 @@ router.post(
   ],
   ResetPasword
 );
+
 //@desc Varify User  API
 //@route GET /api/v1/user/varifyuser
 //@access Public

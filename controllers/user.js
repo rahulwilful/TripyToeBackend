@@ -1,5 +1,6 @@
 const { validationResult, matchedData } = require("express-validator");
 const User = require("../models/User");
+const Searched = require("../models/Searched");
 const RoleType = require("../models/RoleType");
 const Itinerarys = require("../models/Itinerarys");
 const bcrypt = require("bcryptjs");
@@ -373,10 +374,12 @@ const GetUserById = async (req, res) => {
   const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress; //wats remote address?
 
   const userId = req.params.id;
+
   if (!userId) {
     logger.error(`${ip}: API /api/v1/user/get/:id  responded UserId required `);
     return res.status(400).json("UserId  requierd");
   }
+
   console.log(userId);
   try {
     const user = await User.findById({ _id: userId }).populate({ path: "role_type", select: ["name", "value", "active"] });
@@ -385,6 +388,7 @@ const GetUserById = async (req, res) => {
       logger.error(`${ip}: API /api/v1/user/get/:id  responded 'user not found' `);
       return res.status(404).json("user not found");
     }
+
     logger.info(`${ip}: API /api/v1/user/get/:id | responnded with "Got user by ID succesfully" `);
     return res.status(201).json(user);
   } catch (e) {
@@ -792,10 +796,10 @@ const CreateToken = async (req, res) => {
   }
 };
 
-//@desc Searched API
+//@desc SaveSearched API
 //@route POST /api/v1/user/searched/:id
 //@access Public
-const Searched = async (req, res) => {
+const SaveSearched = async (req, res) => {
   const errors = validationResult(req); // checking for validations
   const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
 
@@ -809,29 +813,21 @@ const Searched = async (req, res) => {
 
   console.log("data", data);
   try {
-    const user = await User.findOneAndUpdate(
-      {
-        _id: id,
-      },
-      {
-        $push: {
-          searched: {
-            destination: data.destination,
-            no_of_days: data.no_of_days,
-            start_date: data.start_date,
-            no_of_ppl: data.no_of_ppl,
-            preference: data.preference,
-            budget: data.budget,
-          },
-        },
-      },
-      { new: true } // This option returns the modified document instead of the original
-    );
+    const searched = await Searched.create({
+      destination: data.destination,
+      end_date: data.end_date,
+      start_date: data.start_date,
+      no_of_ppl: data.no_of_ppl,
+      preference: data.preference,
+      userId: data.id,
+      preference: data.preference,
+      budget: data.budget,
+    });
 
-    logger.info(`${ip}: API /api/v1/user/searched/:id responded with "search saved"`);
-    return res.status(201).json({ result: user });
+    logger.info(`${ip}: API /api/v1/user/searched responded with "saved search querys"`);
+    return res.status(201).json({ result: searched });
   } catch (e) {
-    logger.error(`${ip}: API /api/v1/user/searched/:id responded with Error - ${e.message}`);
+    logger.error(`${ip}: API /api/v1/user/searched responded with Error - ${e.message}`);
     return res.status(500).json({ error: "Something went wrong while saving search" });
   }
 };
@@ -1152,7 +1148,7 @@ module.exports = {
   UpdateItineraryById,
   DeleteItineraryById,
   UpdateProfileUrl,
-  Searched,
+  SaveSearched,
   saveItinerary,
   testUserAPI,
   CreateUser,
