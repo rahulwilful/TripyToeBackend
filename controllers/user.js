@@ -796,42 +796,6 @@ const CreateToken = async (req, res) => {
   }
 };
 
-//@desc SaveSearched API
-//@route POST /api/v1/user/searched/:id
-//@access Public
-const SaveSearched = async (req, res) => {
-  const errors = validationResult(req); // checking for validations
-  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
-
-  const id = req.params.id;
-  const data = matchedData(req);
-
-  if (!errors.isEmpty()) {
-    logger.error(`${ip}: API /api/v1/user/searched/:id responded with Error`);
-    return res.status(400).json({ errors: errors.array() });
-  }
-
-  console.log("data", data);
-  try {
-    const searched = await Searched.create({
-      destination: data.destination,
-      end_date: data.end_date,
-      start_date: data.start_date,
-      no_of_ppl: data.no_of_ppl,
-      preference: data.preference,
-      userId: data.id,
-      preference: data.preference,
-      budget: data.budget,
-    });
-
-    logger.info(`${ip}: API /api/v1/user/searched responded with "saved search querys"`);
-    return res.status(201).json({ result: searched });
-  } catch (e) {
-    logger.error(`${ip}: API /api/v1/user/searched responded with Error - ${e.message}`);
-    return res.status(500).json({ error: "Something went wrong while saving search" });
-  }
-};
-
 //@desc saveItinerarys API
 //@route POST /api/v1/user/itinerarys/:id
 //@access Public
@@ -1143,12 +1107,76 @@ const SearchByName = async (req, res) => {
   }
 };
 
+//@desc SaveSearched API
+//@route POST /api/v1/user/searched/:id
+//@access Public
+const SaveSearched = async (req, res) => {
+  const errors = validationResult(req); // checking for validations
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+  const id = req.params.id;
+  const data = matchedData(req);
+
+  if (!errors.isEmpty()) {
+    logger.error(`${ip}: API /api/v1/user/searched/:id responded with Error`);
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  console.log("data", data);
+
+  try {
+    const searched = await Searched.create({
+      destination: data.destination,
+      end_date: data.end_date,
+      start_date: data.start_date,
+      no_of_ppl: data.no_of_ppl,
+      preference: data.preference,
+      userId: data.id,
+      preference: data.preference,
+      budget: data.budget,
+    });
+
+    logger.info(`${ip}: API /api/v1/user/searched responded with "saved search querys"`);
+    return res.status(201).json({ result: searched });
+  } catch (e) {
+    logger.error(`${ip}: API /api/v1/user/searched responded with Error - ${e.message}`);
+    return res.status(500).json({ error: "Something went wrong while saving search" });
+  }
+};
+
+//@desc Get Searched API
+//@route POST /api/v1/user/get-searched/:id
+//@access admin
+const GetSearched = async (req, res) => {
+  const errors = validationResult(req); // checking for validations
+  const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+
+  const id = req.params.id;
+  const data = matchedData(req);
+  console.log("id: ", id);
+  if (!errors.isEmpty()) {
+    logger.error(`${ip}: API /api/v1/user/searched/:id responded with Error`);
+    return res.status(400).json({ errors: errors.array() });
+  }
+
+  try {
+    const searched = await Searched.find({ userId: id });
+    /*   console.log("searched: ", searched); */
+    logger.info(`${ip}: API /api/v1/user/searched responded with "saved search querys"`);
+    return res.status(201).json({ result: searched });
+  } catch (e) {
+    logger.error(`${ip}: API /api/v1/user/searched responded with Error - ${e.message}`);
+    return res.status(500).json({ error: "Something went wrong while saving search" });
+  }
+};
+
 module.exports = {
   SearchByName,
   UpdateItineraryById,
   DeleteItineraryById,
   UpdateProfileUrl,
   SaveSearched,
+  GetSearched,
   saveItinerary,
   testUserAPI,
   CreateUser,

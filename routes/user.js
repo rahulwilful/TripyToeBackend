@@ -23,6 +23,7 @@ const {
   LogInUser,
   ResetPasword,
   SaveSearched,
+  GetSearched,
   testUserAPI,
   UnApproveUser,
   UpdateProfileUrl,
@@ -90,6 +91,11 @@ router.post(
   [body("destination", "destination required"), body("end_date", "end_date required"), body("start_date", "start_date required"), body("no_of_ppl", "no_of_ppl required"), body("preference", "preference required"), body("budget", "budget required"), body("id", "id required")],
   SaveSearched
 );
+
+//@desc Get Searched API
+//@route POST /api/v1/user/get-searched/:id
+//@access admin
+router.get("/get-searched/:id", GetSearched);
 
 //@desc Facebook Sign Up API
 //@route POST /api/v1/user/facebooksignup
