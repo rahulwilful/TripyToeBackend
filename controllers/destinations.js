@@ -59,7 +59,7 @@ const GetDestination = async (req, res) => {
     if (response) {
       return res.status(200).json({ result: response[0] });
     } else {
-      return res.status(200).json({ result: "No match found for destination" });
+      return res.status(200).json({ result: {} });
     }
   } catch (err) {
     console.log("error: ", err);
